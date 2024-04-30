@@ -6,33 +6,33 @@ order: 800
 
 # GPT Fine-tuning
 
-이 튜토리얼은 MoAI Platform에서 [Hugging Face](https://huggingface.co)에 오픈소스로 공개된 GPT 기반의 모델을 fine-tuning하는 예시를 소개합니다. 튜토리얼을 통해 MoAI Platform으로 AMD GPU 클러스터를 사용하는 방법을 익히고 성능 및 자동 병렬화의 이점을 확인할 수 있습니다.
+This tutorial introduces an example of fine-tuning a GPT-based model released as open source in  [Hugging Face](https://huggingface.co/) using MoAI Platform. The tutorial will help you learn how to use AMD GPU clusters with MoAI Platform and demonstrate the performance and automatic parallelization benefits.
 
-## 개요
+## Overview
 
-GPT는 Transformer decoder 구조만을 사용한 언어 모델 아키텍처로써, 2018년 [OpenAI](https://openai.com/)에서 GPT-1을 통해 처음 공개하였습니다. 이후 OpenAI에서는 사전학습에 사용되는 데이터셋 크기와 모델 파라미터를 늘려가며 GPT-2를 거쳐 GPT-3, GPT-4 모델을 개발했으며 이 중 오픈소스로 공개된 모델은 GPT-1, GPT-2 입니다.  
+GPT is a language model architecture using only transformer decoder structure, and was first released through GPT-1 by OpenAI(https://openai.com/) in 2018. Soon after its first release, OpenAI increased the dataset size and model parameters used in pre-training and developed GPT-2, GPT-3 and GPT-4 models, of which the models released as open source are GPT-1 and GPT-2. 
 
-GPT의 기본적인 아키텍처는 오픈소스로 공개되어 있기 때문에 Huggingface에서는 OpenAI에서 개발한 모델 이외에도 다양한 GPT 기반의 모델을 찾아볼 수 있습니다. 
+Since the basic architecture of GPT is open source, you can a variety of GPT-based models in Hugging Face in addition to the models developed by OpenAI.
 
-이 튜토리얼에서는 코드 생성 태스크에 대해 MoAI Platform을 활용해 [Cerebras-GPT-13B](https://huggingface.co/cerebras/Cerebras-GPT-13B) 모델을 fine-tuning 해보겠습니다.  
+In this tutorial, we will fine-tune the [Cerebras-GPT-13B](https://huggingface.co/cerebras/Cerebras-GPT-13B) model using MoAI Platform for code generation task.  
 
-## 시작하기 전에
+## Before we start,
 
-MoAI Platform 상의 컨테이너 혹은 가상 머신을 인프라 제공자로부터 발급받고, 여기에 SSH로 접속하는 방법을 안내 받으시기 바랍니다. 예를 들어 MoAI Platform 기반으로 운영되는 다음 퍼블릭 클라우드 서비스를 신청하여 사용할 수 있습니다.
+Please obtain a container or virtual machine on the MoAI Platform from your infrastructure provider and receive instructions on how to connect to it via SSH.
 
-- KT Cloud의 Hyperscale AI Computing (https://cloud.kt.com/solution/hyperscaleAiComputing/)
+- KT Cloud Hyperscale AI Computing (https://cloud.kt.com/solution/hyperscaleAiComputing/)
 
-혹은 일시적으로 체험판 컨테이너 및 GPU 자원을 할당 받기를 원하시는 분은 Moreh에 문의하시기 바랍니다.
+Or, if you wish to have a trial conatiner or GPU resources, please contact Moreh.
 
 ***(Moreh 연락처 정보 추가 예정)***
 
-SSH로 접속한 다음 `moreh-smi` 명령을 실행하여 MoAI Accelerator가 잘 표시되는지 확인하시기 바랍니다. 디바이스 이름은 시스템마다 다르게 설정되어 있을 수 있습니다. 만약 이 과정에 문제가 있다면 인프라 제공자에게 문의하시거나 ***(troubleshooting 문서 추가 예정)*** 문서의 가이드를 참고하시기 바랍니다.
+After connecting via SSH, run the `moreh-smi` command to check whether MoAI Accelerator is displayed properly. The device name may show up differently depending on what system you use.  If any problem occurs at this stage, please contact your infrastructure provider or refer to the guide in the documentation. ***(나중에 적당한 문서 링크 연결 예정)*** 
 
-### MoAI Accelerator 확인
+### Check MoAI Accelerator
 
-이 튜토리얼에서 안내할 GPT 모델과 같은 sLLM을 학습하기 위해서는 적절한 크기의 MoAI Accelerator를 선택해야 합니다. 먼저 `moreh-smi` 명령어를 이용해 현재 사용중인 MoAI Accelerator를 확인합니다. 
+You need to choose MoAI Accelerator in appropriate size to train an sLLM, such as the GPT model that we will walk you through in this tutorial. First, let’s check the MoAI Accelerator currently in use using the `moreh-smi` cmmand.
 
-수행할 학습에 필요한 구체적인 MoAI Accelerator 설정에 대한 설명은 “3. 학습 실행하기”에서 제공하겠습니다.  
+You will find a detailed description of the specific MoAI Accelerator settings required for the fine-tuning in “[3. Execute Training](https://www.notion.so/3-Execute-Training-29586ff79d72480c8d01015f678dc9bc?pvs=21)”.
 
 ```bash
 $ moreh-smi
@@ -45,4 +45,3 @@ $ moreh-smi
 |  * 0     |   MoAI Accelerator  |  Large.256GB  |  -             |  -             |  -           |
 +-------------------------------------------------------------------------------------------------+
 ```
-
