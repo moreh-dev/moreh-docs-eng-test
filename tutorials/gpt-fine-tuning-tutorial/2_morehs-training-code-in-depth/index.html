@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.767777567031">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.767778775394">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.5.0">
 
     <!-- Primary Meta Tags -->
-    <title>1. Fine-tuning 준비하기</title>
-    <meta name="title" content="1. Fine-tuning 준비하기">
-    <meta name="description" content="MoAI Platform에서 PyTorch 스크립트 실행 환경을 준비하는 것은 일반적인 GPU 서버에서와 크게 다르지 않습니다.">
+    <title>2. Moreh’s training code in-depth</title>
+    <meta name="title" content="2. Moreh’s training code in-depth">
+    <meta name="description" content="Once you have prepared all the training data, let’s look at the contents of the train_gpt.py script that will execute the actual fine-tuning process.">
 
     <!-- Canonical -->
-    <link rel="canonical" href="/tutorials/gpt-fine-tuning-tutorial/1.-fine-tuning-준비하기/">
+    <link rel="canonical" href="/tutorials/gpt-fine-tuning-tutorial/2_morehs-training-code-in-depth/">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/tutorials/gpt-fine-tuning-tutorial/1.-fine-tuning-준비하기/">
-    <meta property="og:title" content="1. Fine-tuning 준비하기">
-    <meta property="og:description" content="MoAI Platform에서 PyTorch 스크립트 실행 환경을 준비하는 것은 일반적인 GPU 서버에서와 크게 다르지 않습니다.">
+    <meta property="og:url" content="/tutorials/gpt-fine-tuning-tutorial/2_morehs-training-code-in-depth/">
+    <meta property="og:title" content="2. Moreh’s training code in-depth">
+    <meta property="og:description" content="Once you have prepared all the training data, let’s look at the contents of the train_gpt.py script that will execute the actual fine-tuning process.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="/tutorials/gpt-fine-tuning-tutorial/1.-fine-tuning-준비하기/">
-    <meta property="twitter:title" content="1. Fine-tuning 준비하기">
-    <meta property="twitter:description" content="MoAI Platform에서 PyTorch 스크립트 실행 환경을 준비하는 것은 일반적인 GPU 서버에서와 크게 다르지 않습니다.">
+    <meta property="twitter:url" content="/tutorials/gpt-fine-tuning-tutorial/2_morehs-training-code-in-depth/">
+    <meta property="twitter:title" content="2. Moreh’s training code in-depth">
+    <meta property="twitter:description" content="Once you have prepared all the training data, let’s look at the contents of the train_gpt.py script that will execute the actual fine-tuning process.">
 
     <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../../../resources/css/retype.css?v=3.5.0.767777567031" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.5.0.767778775394" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.767777567031" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.5.0.767778775394" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.767777567031" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.767777567031" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.5.0.767778775394" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.5.0.767778775394" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -50,8 +50,8 @@
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-full py-2 md:w-75">
                     <div class="flex items-center px-2 md:px-6">
-                        <a id="docs-site-logo" href="../../../" class="flex items-center leading-snug text-2xl">
-                            <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">Project Name</span>
+                        <a id="docs-site-logo" href="../../../" class="flex items-center leading-snug text-xl">
+                            <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">MoAI Platform</span>
                         </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">Docs</span>
                     </div>
         
@@ -164,95 +164,126 @@
                                 <!-- Rendered if sidebar right is enabled -->
                                 <div id="docs-sidebar-right-toggle"></div>
                                 <!-- Page content  -->
-<doc-anchor-target id="1-fine-tuning-준비하기" class="break-words">
+<doc-anchor-target id="2-morehs-training-code-in-depth" class="break-words">
     <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#1-fine-tuning-준비하기">#</doc-anchor-trigger>
-        <span>1. Fine-tuning 준비하기</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#2-morehs-training-code-in-depth">#</doc-anchor-trigger>
+        <span>2. Moreh’s training code in-depth</span>
     </h1>
 </doc-anchor-target>
-<p>MoAI Platform에서 PyTorch 스크립트 실행 환경을 준비하는 것은 일반적인 GPU 서버에서와 크게 다르지 않습니다.</p>
-<doc-anchor-target id="pytorch-설치-여부-확인하기">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#pytorch-설치-여부-확인하기">#</doc-anchor-trigger>
-        <span>PyTorch 설치 여부 확인하기</span>
-    </h2>
+<p>Once you have prepared all the training data, let’s look at the contents of the <code v-pre>train_gpt.py</code> script that will execute the actual fine-tuning process. At this stage, you will realize that the MoAI Platform is fully compatible with PyTorch, so the training code is 100% identical to the PyTorch code that is used on Nvidia GPUs. <strong>Plus, you will also see how efficiently complex paralellization techniques can be implemented on MoAI Platform.</strong></p>
+<p>First, we recommend that you follow the tutorial to the end using the script we provide.  Afterward, you can modify the script based on your need to fine-tune the Cerebras-GPT-13B model or other published models in many other ways. Moreh also prepared <a href="https://www.notion.so/LLM-Fine-tuning-a169bf8a667c4a0689ec2d4ff464775b?pvs=21">LLM Fine-tuning 파라미터 가이드</a> for you to experience the best performance on MoAI Platform.</p>
+<p>If you just want to skip reading the script and jump right into the fine-tuning, please go to “3. Execute Training”.</p>
+<doc-anchor-target id="training-code">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#training-code">#</doc-anchor-trigger>
+        <span>Training Code</span>
+    </h1>
 </doc-anchor-target>
-<p>SSH로 컨테이너에 접속한 다음 아래와 같이 실행하여 현재 conda 환경에 PyTorch가 설치되어 있는지 확인합니다.</p>
+<p><strong>All codes are completely identical to your normal PyTorch experience.</strong></p>
+<p>First, import the required modules from the <code v-pre>transformers</code> library.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">$ conda list torch
+<pre class="language-python"><code v-pre class="language-python">from transformers import AutoModelForCausalLM, AdamW, AutoTokenizer</code></pre>
+</doc-codeblock></div>
+<p>Import the model config and checkpoint released in Hugging Face.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-python"><code v-pre class="language-python">model = AutoModelForCausalLM.from_pretrained(&quot;cerebras/Cerebras-GPT-13B&quot;)
+tokenizer = AutoTokenizer.from_pretrained(&quot;cerebras/Cerebras-GPT-13B&quot;) </code></pre>
+</doc-codeblock></div>
+<p>Load the preprocessed dataset saved during <a href="https://www.notion.so/1-Prepare-Fine-tuning-94e2e2a98e6b4bf59476213ed204de31?pvs=21">1.Prepare Fine-tuning</a> step and define the data loader.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-python"><code v-pre class="language-python">  dataset = torch.load(&quot;gpt_dataset.pt&quot;)
+
+  # Create a DataLoader for the training set
+  train_dataloader = torch.utils.data.DataLoader(
+      dataset,
+      batch_size=args.batch_size,
+      shuffle=True,
+      drop_last=True,
+  )</code></pre>
+</doc-codeblock></div>
+<p>The rest of the training proceeds in the same way as model training using general PyTorch.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-python"><code v-pre class="language-python">    # Mask pad tokens for training
+    def mask_pads(input_ids, attention_mask, ignore_index = -100):
+        idx_mask = attention_mask
+        labels = copy.deepcopy(input_ids)
+        labels[~idx_mask.bool()] = ignore_index
+        return labels
+
+    # Define AdamW optimizer
+    optim = AdamW(model.parameters(), lr=args.lr)
+
+    # Start training
+    for epoch in range(args.epoch):
+        for i, batch in enumerate(train_dataloader, 0):
+            input_ids = batch[&quot;input_ids&quot;]
+            attn_mask = batch[&quot;attention_mask&quot;]
+            labels = mask_pads(input_ids, attn_mask)
+            outputs = model(
+                input_ids.cuda(),
+                attention_mask=attn_mask.cuda(),
+                labels=labels.cuda(),
+                use_cache=False,
+            )
+
+            loss = outputs[0]
+            loss.backward()
+
+            optim.step()
+            model.zero_grad(set_to_none=True)</code></pre>
+</doc-codeblock></div>
+<p><strong>As shown above, the code for MoAI Platform can be written in the same way as general PyTorch code.</strong></p>
+<doc-anchor-target id="advanced-parallelism">
+    <h1>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#advanced-parallelism">#</doc-anchor-trigger>
+        <span>Advanced Parallelism</span>
+    </h1>
+</doc-anchor-target>
+<p>The training script used in this tutorial, there is one additional line of code as shown below. This is the code that performs the best parallelization available exclusively on MoAI Platform.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">torch.moreh.option.enable_advanced_parallelization()</code></pre>
+</doc-codeblock></div>
+<p>The large language models such as  <a href="https://huggingface.co/cerebras/Cerebras-GPT-13B">Cerebras-GPT-13B</a> used in this tutorial, require multiple GPUs to train. When using a framework other than MoAI Platform, parallelization techniques such as Data Parallel, Pipeline Parallel and Tensor Parellel must be adapted during model training.</p>
+<p>For example, if a user wants to apply DDP in regular PyTorch code, the following code snippet should be added. (<a href="https://pytorch.org/tutorials/intermediate/ddp_tutorial.html">https://pytorch.org/tutorials/intermediate/ddp_tutorial.html</a>)</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-python"><code v-pre class="language-python">...
+def setup(rank, world_size):
+    dist.init_process_group(&quot;nccl&quot;, rank=rank, world_size=world_size)
+    torch.cuda.set_device(rank)
 ...
-# Name                    Version                   Build  Channel
-torch                     1.13.1+cu116.moreh24.2.0          pypi_0    pypi
+
+def main(rank, world_size, args):
+	setup(rank, world_size)
+...
+	sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
+	loader = DataLoader(dataset, batch_size=64, sampler=sampler)
+...
+
+...
+world_size = torch.cuda.device_count()  # Change this if you want a different number of GPUs
+rank = int(os.environ['LOCAL_RANK'])
+main(rank, world_size, args)
 ...</code></pre>
 </doc-codeblock></div>
-<p>버전명에는 PyTorch 버전과 이를 실행시키기 위한 MoAI 버전이 함께 표시되어 있습니다. 위 예시의 경우 PyTorch 1.13.1+cu116 버전을 실행하는 MoAI의 24.2.0 버전이 설치되어 있음을 의미합니다.</p>
-<p>만약 <code v-pre>conda: command not found</code> 메시지가 표시되거나, torch 패키지가 리스트되지 않거나, 혹은 torch 패키지가 존재하더라도 버전명에 “moreh”가 포함되지 않은 경우 <em><strong>(<a href="https://www.notion.so/Prepare-Fine-tuning-on-MoAI-Platform-6063868a82ce4f6daeb1eceabf886b2a?pvs=21">Prepare Fine-tuning on MoAI Platform</a>)</strong></em> 문서에 따라 conda 환경을 생성하십시오.</p>
-<doc-anchor-target id="pytorch-동작-여부-확인하기">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#pytorch-동작-여부-확인하기">#</doc-anchor-trigger>
-        <span>PyTorch 동작 여부 확인하기</span>
-    </h2>
-</doc-anchor-target>
-<p>다음과 같이 실행하여 torch 패키지가 정상적으로 import되고 MoAI Accelerator가 인식되는지 확인합니다. 만약 이 과정에 문제가 생긴다면 <em><strong>(troubleshooting 문서 추가 예정)</strong></em> 문서에 따라 조치하십시오.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">$ python
-Python 3.8.18 (default, Sep 11 2023, 13:40:15)
-[GCC 11.2.0] :: Anaconda, Inc. on linux
-Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
-&gt;&gt;&gt; import torch
+<pre class="language-bash"><code v-pre class="language-bash"># single node 실행
+torchrun --standalone --nnodes=1 --nproc_per_node=8 train.py
+# multi node 실행
+torchrun --nnodes=2 --nproc_per_node=8 --rdzv_id=100 --rdzv_backend=c10d --rdzv_endpoint=$MASTER_ADDR:29400 train.py</code></pre>
+</doc-codeblock></div>
+<p>In addition to these basic settings, you must understand how the Python code works under a multi-processing environment while writing the training script. Especially, when training in a multi-node environment, you must do additional setup on the nodes used for training. Moreover, it takes a lot of time and effort to find the optimal parallelization method considering the type, size, and dataset of the model.</p>
+<p><strong>On the other hand, MoAI Platform’s exclusive Advanced Parallelism allows you to conduct optimized parallel training by simply adding the following line of code to the training script without any need to apply additional parallelization techniques by yourself.</strong></p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-python"><code v-pre class="language-python">import torch
 ...
-&gt;&gt;&gt; torch.cuda.device_count()
-1
-&gt;&gt;&gt; torch.cuda.get_device_name()
-[2024-04-16 19:17:45.714] [info] Requesting resources for MoAI Accelerator from the server...
-[2024-04-16 19:17:45.752] [info] Initializing the worker daemon for MoAI Accelerator
-[2024-04-16 19:17:47.409] [info] [1/1] Connecting to resources on the server (192.168.110.00:24158)...
-[2024-04-16 19:17:47.452] [info] Establishing links to the resources...
-[2024-04-16 19:17:47.636] [info] MoAI Accelerator is ready to use.
-'MoAI Accelerator'
-&gt;&gt;&gt; quit()</code></pre>
+torch.moreh.option.enable_advanced_parallelization()
+
+model = AutoModelForCausalLM.from_pretrained(&quot;cerebras/Cerebras-GPT-13B&quot;)
+tokenizer = AutoTokenizer.from_pretrained(&quot;cerebras/Cerebras-GPT-13B&quot;) 
+...</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="필요-python-패키지-설치">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#필요-python-패키지-설치">#</doc-anchor-trigger>
-        <span>필요 Python 패키지 설치</span>
-    </h2>
-</doc-anchor-target>
-<p>다음과 같이 실행하여 스크립트 실행에 필요한 서드 파티 Python 패키지들을 미리 설치합니다.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">$ pip install transformers==4.34.0 datasets==2.14.5 loguru==0.7.2</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="학습-스크립트-다운로드">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#학습-스크립트-다운로드">#</doc-anchor-trigger>
-        <span>학습 스크립트 다운로드</span>
-    </h2>
-</doc-anchor-target>
-<p>다음과 같이 실행하여 GitHub 레포지토리에서 학습을 위한 PyTorch 스크립트를 다운로드합니다. 본 튜토리얼에서는 <code v-pre>tutorial</code> 디렉토리 안에 있는 <code v-pre>train_gpt.py</code> 스크립트를 사용할 것입니다.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">$ sudo apt-get install git
-$ git clone https://github.com/moreh-dev/quickstart.git
-$ cd quickstart
-~/quickstart$ ls tutorial
-...  train_gpt.py  ...</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="학습-데이터-다운로드">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#학습-데이터-다운로드">#</doc-anchor-trigger>
-        <span>학습 데이터 다운로드</span>
-    </h2>
-</doc-anchor-target>
-<p>Huggingface에서는 model checkpoint뿐만 아니라 model fine-tuning에 사용할 수 있는 다양한 데이터셋이 공개되어 있습니다.</p>
-<p>이번 튜토리얼에서 저희는 <a href="https://huggingface.co/datasets/mlabonne/Evol-Instruct-Python-26k">mlabonne/Evol-Instruct-Python-26k</a> 데이터셋을 사용할 것입니다. 이 데이터셋은 주어진 질문 조건과 주어진 질문 조건에 맞게 작성된 python 코드로 이루어져 있습니다.</p>
-<p>학습 데이터를 다운로드 받기 위해 <code v-pre>dataset</code> 디렉토리 안에 있는<code v-pre>prepare_gpt_dataset.py</code> 스크립트를 통해 huggingface에 공개된 데이터셋을 다운로드하고, fine-tuning 학습에 바로 사용할 수 있도록 전처리를 진행하겠습니다.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">~/quickstart$ python dataset/prepare_gpt_dataset.py</code></pre>
-</doc-codeblock></div>
-<p>전처리가 진행된 데이터셋은 <code v-pre>gpt_dataset.pt</code> 로 저장됩니다.</p>
-<p>저장된 데이터셋은 코드상에서 다음과 같이 로드하여 사용할 수 있습니다.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-python"><code v-pre class="language-python">dataset = torch.load(&quot;gpt_dataset.pt&quot;)</code></pre>
-</doc-codeblock></div>
+<p>Please experience <strong>optimal distributed parallel processing</strong> through MoAI Platform’s Advanced Parallelism (AP), a parallelization optimization and automation function that cannot be experienced in other frameworks.</p>
+<p>Using the AP function, you can obtain the optimal combination of parameters and environment variables for Pipeline Parallelism and Tensor Parallelism, which are generally required when training large-scale models, <strong>with a single line of very simple code</strong>.</p>
 
                                 <div class="flex items-center mt-6 mb-6 clear-both">
                                     <span>
@@ -272,20 +303,20 @@ $ cd quickstart
                             
                                 <nav class="flex mt-14">
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../../tutorials/gpt-fine-tuning-tutorial/">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../../tutorials/gpt-fine-tuning-tutorial/1_prepare-fine-tuning/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                             <span>
                                                 <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
-                                                <span class="block mt-1">GPT Fine-​tuning</span>
+                                                <span class="block mt-1">1. Prepare Fine-​tuning</span>
                                             </span>
                                         </a>
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../../tutorials/gpt-fine-tuning-tutorial/2.-moreh의-학습-코드-톺아보기/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../../tutorials/gpt-fine-tuning-tutorial/3.-학습-실행하기/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">2. Moreh의 학습 코드 톺아보기</span>
+                                                <span class="block mt-1">3. 학습 실행하기</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -329,6 +360,6 @@ $ cd quickstart
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "1. Fine-tuning 준비하기", level: 3, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "2. Moreh’s training code in-depth", level: 3, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>
