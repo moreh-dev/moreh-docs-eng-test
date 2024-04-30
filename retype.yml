@@ -1,30 +1,11 @@
-poweredByRetype: false
-
 input: .
 output: .retype
-
-url: https://docs.moreh.io
-
+url: # Add your website address here
 branding:
-  logo: ./img/logo-white.png
-  title: Moreh Documentation
+  title: Project Name
   label: Docs
-
 links:
-  - link: https://moreh.io
-    text: About Moreh
-
-    
+- text: Getting Started
+  link: https://retype.com/guides/getting-started/
 footer:
   copyright: "&copy; Copyright {{ year }}. All rights reserved."
-
-
-steps:
-- uses: actions/checkout@v3
-
-- uses: retypeapp/action-build@latest
-
-
-
-edit: 
-  repo: https://github.com/moreh-dev/moreh-2024docs
